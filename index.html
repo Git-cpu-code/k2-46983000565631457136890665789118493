@@ -58,20 +58,20 @@
             width: 100%;
             height: 100vh;
             pointer-events: none;
-		z-index:12;
+		z-index:1;
         }
         .note-img {
             position: fixed;
             width: auto;
             height: 54.545px;
-            right: 0;
+            right: -10vw;
             opacity: 1;
             animation: moveFromRight 8s linear forwards; /* Fließende Bewegung über 8 Sekunden */
-		z-index:12;
+		z-index:1;
         }
 @keyframes moveFromRight {
     0% {
-        right: -10%; /* Beginnt leicht außerhalb des sichtbaren Bereichs */
+        right: -10vw; /* Beginnt leicht außerhalb des sichtbaren Bereichs */
     }
     100% {
         right: 110vw; /* Bewegt sich vollständig aus dem sichtbaren Bereich */

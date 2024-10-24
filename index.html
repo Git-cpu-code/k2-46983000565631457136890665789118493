@@ -71,13 +71,13 @@
         }
 @keyframes moveFromRight {
     0% {
-        right: 0; /* Starte direkt am sichtbaren rechten Rand */
+        right: -10%; /* Beginnt leicht außerhalb des sichtbaren Bereichs */
     }
     100% {
-        right: 100vw; /* Bewege dich bis zum linken Rand des sichtbaren Bildschirms */
-        transform: translateX(-100vw);
+        right: 110vw; /* Bewegt sich vollständig aus dem sichtbaren Bereich */
     }
-        }
+}
+
 
 /* Die Farben und Positionen der Tasten bleiben unverändert */
     #key-a0 { background-color: #8B0000; left: 0px; }

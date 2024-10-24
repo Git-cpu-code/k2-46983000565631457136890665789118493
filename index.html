@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klaviertastatur mit Notenbildern</title>
+    <style>
+        #staff {
+            width: 12000px;
+            height: 480px;
+            position: fixed;
+            margin: 0;
+            margin-top: 150px;
+            padding: 0;
+            top: 50px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+        }
+        #piano {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            height: 400px;
+        }
+        .white-key, .black-key {
+            position: absolute;
+            cursor: pointer;
+            border: 1px solid black;
+            box-sizing: border-box;
+        }
+        .white-key {
+            width: 60px;
+            height: 200px;
+        }
+        .black-key {
+            width: 40px;
+            height: 120px;
+            z-index: 1;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            z-index: 10;
+            pointer-events: none;
+        }
+        #note-display {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            pointer-events: none;
+		z-index:12;
+        }
+        .note-img {
+            position: fixed;
+            width: auto;
+            height: 54.545px;
+            right: 0;
+            opacity: 1;
+            animation: moveFromRight 8s linear forwards; /* Fließende Bewegung über 8 Sekunden */
+		z-index:12;
+        }
+        @keyframes moveFromRight {
+            0% {
+                transform: translateX(5vw); /* Start außerhalb des rechten Bildschirmrands */
+            }
+            100% {
+                transform: translateX(-100vw); /* Bewegt sich über den gesamten Bildschirm bis zum linken Rand */
+            }
+        }
+
+/* Die Farben und Positionen der Tasten bleiben unverändert */
+    #key-a0 { background-color: #8B0000; left: 0px; }
+    #key-as0 { background-color: #800080; left: 45px; }
+    #key-h0 { background-color: #654321; left: 60px; }
+
+    /* Oktave 1 */
+    #key-c1 { background-color: #A52A2A; left: 120px; }
+    #key-cs1 { background-color: #483D8B; left: 165px; }
+    #key-d1 { background-color: #FF8C00; left: 180px; }
+    #key-ds1 { background-color: #B87333; left: 225px; }
+    #key-e1 { background-color: #008B8B; left: 240px; }
+    #key-f1 { background-color: #556B2F; left: 300px; }
+    #key-fs1 { background-color: #4682B4; left: 345px; }
+    #key-g1 { background-color: #2E8B57; left: 360px; }
+    #key-gs1 { background-color: #006400; left: 405px; }
+    #key-a1 { background-color: #1C1C1C; left: 420px; }
+    #key-as1 { background-color: #2F4F4F; left: 465px; }
+    #key-h1 { background-color: #8B4513; left: 480px; }
+
+    /* Oktave 2 */
+    #key-c2 { background-color: #B22222; left: 540px; }
+    #key-cs2 { background-color: #6A5ACD; left: 585px; }
+    #key-d2 { background-color: #FF4500; left: 600px; }
+    #key-ds2 { background-color: #CD5C5C; left: 645px; }
+    #key-e2 { background-color: #008080; left: 660px; }
+    #key-f2 { background-color: #228B22; left: 720px; }
+    #key-fs2 { background-color: #778899; left: 765px; }
+    #key-g2 { background-color: #32CD32; left: 780px; }
+    #key-gs2 { background-color: #00FA9A; left: 825px; }
+    #key-a2 { background-color: #00BFFF; left: 840px; }
+    #key-as2 { background-color: #8A2BE2; left: 885px; }
+    #key-h2 { background-color: #6B4226; left: 900px; }
+
+    /* Oktave 3 */
+    #key-c3 { background-color: #C71585; left: 960px; }
+    #key-cs3 { background-color: #9370DB; left: 1005px; }
+    #key-d3 { background-color: #FFA500; left: 1020px; }
+    #key-ds3 { background-color: #CD853F; left: 1065px; }
+    #key-e3 { background-color: #40E0D0; left: 1080px; }
+    #key-f3 { background-color: #556B2F; left: 1140px; }
+    #key-fs3 { background-color: #708090; left: 1185px; }
+    #key-g3 { background-color: #7FFF00; left: 1200px; }
+    #key-gs3 { background-color: #8FBC8F; left: 1245px; }
+    #key-a3 { background-color: #007FFF; left: 1260px; }
+    #key-as3 { background-color: #9932CC; left: 1305px; }
+    #key-h3 { background-color: #8B4513; left: 1320px; }
+
+    /* Oktave 4 */
+    #key-c4 { background-color: #DC143C; left: 1380px; }
+    #key-cs4 { background-color: #9400D3; left: 1425px; }
+    #key-d4 { background-color: #FF6347; left: 1440px; }
+    #key-ds4 { background-color: #CD853F; left: 1485px; }
+    #key-e4 { background-color: #00CED1; left: 1500px; }
+    #key-f4 { background-color: #6B8E23; left: 1560px; }
+    #key-fs4 { background-color: #4682B4; left: 1605px; }
+    #key-g4 { background-color: #32CD32; left: 1620px; }
+    #key-gs4 { background-color: #ADFF2F; left: 1665px; }
+    #key-a4 { background-color: #00BFFF; left: 1680px; }
+    #key-as4 { background-color: #8A2BE2; left: 1725px; }
+    #key-h4 { background-color: #A0522D; left: 1740px; }
+
+    /* Oktave 5 */
+    #key-c5 { background-color: #FF4500; left: 1800px; }
+    #key-cs5 { background-color: #8B008B; left: 1845px; }
+    #key-d5 { background-color: #FF7F50; left: 1860px; }
+    #key-ds5 { background-color: #DEB887; left: 1905px; }
+    #key-e5 { background-color: #66CDAA; left: 1920px; }
+    #key-f5 { background-color: #006400; left: 1980px; }
+    #key-fs5 { background-color: #2F4F4F; left: 2025px; }
+    #key-g5 { background-color: #00FF7F; left: 2040px; }
+    #key-gs5 { background-color: #98FB98; left: 2085px; }
+    #key-a5 { background-color: #ADD8E6; left: 2100px; }
+    #key-as5 { background-color: #9370DB; left: 2145px; }
+    #key-h5 { background-color: #D2B48C; left: 2160px; }
+
+    /* Oktave 6 */
+    #key-c6 { background-color: #FF2400; left: 2220px; }
+    #key-cs6 { background-color: #4B0082; left: 2265px; }
+    #key-d6 { background-color: #FF6347; left: 2280px; }
+    #key-ds6 { background-color: #CD5C5C; left: 2325px; }
+    #key-e6 { background-color: #00FFFF; left: 2340px; }
+    #key-f6 { background-color: #2E8B57; left: 2400px; }
+    #key-fs6 { background-color: #708090; left: 2445px; }
+    #key-g6 { background-color: #32CD32; left: 2460px; }
+    #key-gs6 { background-color: #ADFF2F; left: 2505px; }
+    #key-a6 { background-color: #87CEEB; left: 2520px; }
+    #key-as6 { background-color: #8A2BE2; left: 2565px; }
+    #key-h6 { background-color: #F4A460; left: 2580px; }
+
+    /* Oktave 7 */
+    #key-c7 { background-color: #FF6347; left: 2640px; }
+    #key-cs7 { background-color: #9932CC; left: 2685px; }
+    #key-d7 { background-color: #FFA07A; left: 2700px; }
+    #key-ds7 { background-color: #DEB887; left: 2745px; }
+    #key-e7 { background-color: #66CDAA; left: 2760px; }
+    #key-f7 { background-color: #006400; left: 2820px; }
+    #key-fs7 { background-color: #2F4F4F; left: 2865px; }
+    #key-g7 { background-color: #00FF7F; left: 2880px; }
+    #key-gs7 { background-color: #98FB98; left: 2925px; }
+    #key-a7 { background-color: #ADD8E6; left: 2940px; }
+    #key-as7 { background-color: #9370DB; left: 2985px; }
+    #key-h7 { background-color: #D2B48C; left: 3000px; }
+
+    /* Oktave 8 */
+    #key-c8 { background-color: #FF6347; left: 3060px; }
+</style>
+
+
+<div id="piano">
+    <div id="key-a0" class="white-key" data-note="A" data2-note="0"></div>
+    <div id="key-as0" class="black-key" data-note="A#" data2-note="1"></div>
+    <div id="key-h0" class="white-key" data-note="B" data2-note="2"></div>
+
+    <div id="key-c1" class="white-key" data-note="C" data2-note="3"></div>
+    <div id="key-cs1" class="black-key" data-note="C#" data2-note="4"></div>
+    <div id="key-d1" class="white-key" data-note="D" data2-note="5"></div>
+    <div id="key-ds1" class="black-key" data-note="D#" data2-note="6"></div>
+    <div id="key-e1" class="white-key" data-note="E" data2-note="7"></div>
+    <div id="key-f1" class="white-key" data-note="F" data2-note="8"></div>
+    <div id="key-fs1" class="black-key" data-note="F#" data2-note="9"></div>
+    <div id="key-g1" class="white-key" data-note="G" data2-note="10"></div>
+    <div id="key-gs1" class="black-key" data-note="G#" data2-note="11"></div>
+    <div id="key-a1" class="white-key" data-note="A" data2-note="12"></div>
+    <div id="key-as1" class="black-key" data-note="A#" data2-note="13"></div>
+    <div id="key-h1" class="white-key" data-note="B" data2-note="14"></div>
+
+    <div id="key-c2" class="white-key" data-note="C" data2-note="15"></div>
+    <div id="key-cs2" class="black-key" data-note="C#" data2-note="16"></div>
+    <div id="key-d2" class="white-key" data-note="D" data2-note="17"></div>
+    <div id="key-ds2" class="black-key" data-note="D#" data2-note="18"></div>
+    <div id="key-e2" class="white-key" data-note="E" data2-note="19"></div>
+    <div id="key-f2" class="white-key" data-note="F" data2-note="20"></div>
+    <div id="key-fs2" class="black-key" data-note="F#" data2-note="21"></div>
+    <div id="key-g2" class="white-key" data-note="G" data2-note="22"></div>
+    <div id="key-gs2" class="black-key" data-note="G#" data2-note="23"></div>
+    <div id="key-a2" class="white-key" data-note="A" data2-note="24"></div>
+    <div id="key-as2" class="black-key" data-note="A#" data2-note="25"></div>
+    <div id="key-h2" class="white-key" data-note="B" data2-note="26"></div>
+
+    <!-- Oktave 3 -->
+    <div id="key-c3" class="white-key" data-note="C" data2-note="27"></div>
+    <div id="key-cs3" class="black-key" data-note="C#" data2-note="28"></div>
+    <div id="key-d3" class="white-key" data-note="D" data2-note="29"></div>
+    <div id="key-ds3" class="black-key" data-note="D#" data2-note="30"></div>
+    <div id="key-e3" class="white-key" data-note="E" data2-note="31"></div>
+    <div id="key-f3" class="white-key" data-note="F" data2-note="32"></div>
+    <div id="key-fs3" class="black-key" data-note="F#" data2-note="33"></div>
+    <div id="key-g3" class="white-key" data-note="G" data2-note="34"></div>
+    <div id="key-gs3" class="black-key" data-note="G#" data2-note="35"></div>
+    <div id="key-a3" class="white-key" data-note="A" data2-note="36"></div>
+    <div id="key-as3" class="black-key" data-note="A#" data2-note="37"></div>
+    <div id="key-h3" class="white-key" data-note="B" data2-note="38"></div>
+
+    <!-- Oktave 4 -->
+    <div id="key-c4" class="white-key" data-note="C" data2-note="39"></div>
+    <div id="key-cs4" class="black-key" data-note="C#" data2-note="40"></div>
+    <div id="key-d4" class="white-key" data-note="D" data2-note="41"></div>
+    <div id="key-ds4" class="black-key" data-note="D#" data2-note="42"></div>
+    <div id="key-e4" class="white-key" data-note="E" data2-note="43"></div>
+    <div id="key-f4" class="white-key" data-note="F" data2-note="44"></div>
+    <div id="key-fs4" class="black-key" data-note="F#" data2-note="45"></div>
+    <div id="key-g4" class="white-key" data-note="G" data2-note="46"></div>
+    <div id="key-gs4" class="black-key" data-note="G#" data2-note="47"></div>
+    <div id="key-a4" class="white-key" data-note="A" data2-note="48"></div>
+    <div id="key-as4" class="black-key" data-note="A#" data2-note="49"></div>
+    <div id="key-h4" class="white-key" data-note="B" data2-note="50"></div>
+
+    <!-- Oktave 5 -->
+    <div id="key-c5" class="white-key" data-note="C" data2-note="51"></div>
+    <div id="key-cs5" class="black-key" data-note="C#" data2-note="52"></div>
+    <div id="key-d5" class="white-key" data-note="D" data2-note="53"></div>
+    <div id="key-ds5" class="black-key" data-note="D#" data2-note="54"></div>
+    <div id="key-e5" class="white-key" data-note="E" data2-note="55"></div>
+    <div id="key-f5" class="white-key" data-note="F" data2-note="56"></div>
+    <div id="key-fs5" class="black-key" data-note="F#" data2-note="57"></div>
+    <div id="key-g5" class="white-key" data-note="G" data2-note="58"></div>
+    <div id="key-gs5" class="black-key" data-note="G#" data2-note="59"></div>
+    <div id="key-a5" class="white-key" data-note="A" data2-note="60"></div>
+    <div id="key-as5" class="black-key" data-note="A#" data2-note="61"></div>
+    <div id="key-h5" class="white-key" data-note="B" data2-note="62"></div>
+
+    <!-- Oktave 6 -->
+    <div id="key-c6" class="white-key" data-note="C" data2-note="63"></div>
+    <div id="key-cs6" class="black-key" data-note="C#" data2-note="64"></div>
+    <div id="key-d6" class="white-key" data-note="D" data2-note="65"></div>
+    <div id="key-ds6" class="black-key" data-note="D#" data2-note="66"></div>
+    <div id="key-e6" class="white-key" data-note="E" data2-note="67"></div>
+    <div id="key-f6" class="white-key" data-note="F" data2-note="68"></div>
+    <div id="key-fs6" class="black-key" data-note="F#" data2-note="69"></div>
+    <div id="key-g6" class="white-key" data-note="G" data2-note="70"></div>
+    <div id="key-gs6" class="black-key" data-note="G#" data2-note="71"></div>
+    <div id="key-a6" class="white-key" data-note="A" data2-note="72"></div>
+    <div id="key-as6" class="black-key" data-note="A#" data2-note="73"></div>
+    <div id="key-h6" class="white-key" data-note="B" data2-note="74"></div>
+
+    <!-- Oktave 7 -->
+    <div id="key-c7" class="white-key" data-note="C" data2-note="75"></div>
+    <div id="key-cs7" class="black-key" data-note="C#" data2-note="76"></div>
+    <div id="key-d7" class="white-key" data-note="D" data2-note="77"></div>
+    <div id="key-ds7" class="black-key" data-note="D#" data2-note="78"></div>
+    <div id="key-e7" class="white-key" data-note="E" data2-note="79"></div>
+    <div id="key-f7" class="white-key" data-note="F" data2-note="80"></div>
+    <div id="key-fs7" class="black-key" data-note="F#" data2-note="81"></div>
+    <div id="key-g7" class="white-key" data-note="G" data2-note="82"></div>
+    <div id="key-gs7" class="black-key" data-note="G#" data2-note="83"></div>
+    <div id="key-a7" class="white-key" data-note="A" data2-note="84"></div>
+    <div id="key-as7" class="black-key" data-note="A#" data2-note="85"></div>
+    <div id="key-h7" class="white-key" data-note="B" data2-note="86"></div>
+
+    <!-- Oktave 8 -->
+    <div id="key-c8" class="white-key" data-note="C" data2-note="87"></div>
+</div>
+
+<div id="overlay" class="overlay"></div>
+<div id="note-display"></div>
+<img id="staff" src="images2/staff.jpeg" alt="Notenlinien">
+<div id="error-message" style="color: red; display: none; z-index:10;"></div>
+
+<script>
+const overlay = document.getElementById('overlay');
+const noteDisplay = document.getElementById('note-display');
+const overlayOpacity = 0.9;
+const activeKeys = new Set(); // Set für aktive Tasten
+var graceTimeout;
+var gracePeriod = 50; // Grace Period für "gleichzeitiges Drücken"
+// Zuordnung von Tasten zu den Audiodateien
+const sounds = {
+    'key-a0': 'sounds/a0.mp3',
+    'key-as0': 'sounds/as0.mp3',
+    'key-h0': 'sounds/h0.mp3',
+    'key-c1': 'sounds/c1.mp3',
+    'key-cs1': 'sounds/cs1.mp3',
+    'key-d1': 'sounds/d1.mp3',
+    'key-ds1': 'sounds/ds1.mp3',
+    'key-e1': 'sounds/e1.mp3',
+    'key-f1': 'sounds/f1.mp3',
+    'key-fs1': 'sounds/fs1.mp3',
+    'key-g1': 'sounds/g1.mp3',
+    'key-gs1': 'sounds/gs1.mp3',
+    'key-a1': 'sounds/a1.mp3',
+    'key-as1': 'sounds/a1.mp3',
+    'key-h1': 'sounds/h1.mp3',
+    'key-c2': 'sounds/c2.mp3',
+    'key-cs2': 'sounds/cs2.mp3',
+    'key-d2': 'sounds/d2.mp3',
+    'key-ds2': 'sounds/ds2.mp3',
+    'key-e2': 'sounds/e2.mp3',
+    'key-f2': 'sounds/f2.mp3',
+    'key-fs2': 'sounds/fs2.mp3',
+    'key-g2': 'sounds/g2.mp3',
+    'key-gs2': 'sounds/gs2.mp3',
+    'key-a2': 'sounds/a2.mp3',
+    'key-as2': 'sounds/as2.mp3',
+    'key-h2': 'sounds/h2.mp3',
+    'key-c3': 'sounds/c3.mp3',
+    'key-cs3': 'sounds/cs3.mp3',
+    'key-d3': 'sounds/d3.mp3',
+    'key-ds3': 'sounds/ds3.mp3',
+    'key-e3': 'sounds/e3.mp3',
+    'key-f3': 'sounds/f3.mp3',
+    'key-fs3': 'sounds/fs3.mp3',
+    'key-g3': 'sounds/g3.mp3',
+    'key-gs3': 'sounds/gs3.mp3',
+    'key-a3': 'sounds/a3.mp3',
+    'key-as3': 'sounds/as3.mp3',
+    'key-h3': 'sounds/h3.mp3',
+    'key-c4': 'sounds/c4.mp3',
+    'key-cs4': 'sounds/cs4.mp3',
+    'key-d4': 'sounds/d4.mp3',
+    'key-ds4': 'sounds/ds4.mp3',
+    'key-e4': 'sounds/e4.mp3',
+    'key-f4': 'sounds/f4.mp3',
+    'key-fs4': 'sounds/fs4.mp3',
+    'key-g4': 'sounds/g4.mp3',
+    'key-gs4': 'sounds/gs4.mp3',
+    'key-a4': 'sounds/a4.mp3',
+    'key-as4': 'sounds/as4.mp3',
+    'key-h4': 'sounds/h4.mp3',
+    'key-c5': 'sounds/c5.mp3',
+    'key-cs5': 'sounds/cs5.mp3',
+    'key-d5': 'sounds/d5.mp3',
+    'key-ds5': 'sounds/ds5.mp3',
+    'key-e5': 'sounds/e5.mp3',
+    'key-f5': 'sounds/f5.mp3',
+    'key-fs5': 'sounds/fs5.mp3',
+    'key-g5': 'sounds/g5.mp3',
+    'key-gs5': 'sounds/gs5.mp3',
+    'key-a5': 'sounds/a5.mp3',
+    'key-as5': 'sounds/as5.mp3',
+    'key-h5': 'sounds/h5.mp3',
+    'key-c6': 'sounds/c6.mp3',
+    'key-cs6': 'sounds/cs6.mp3',
+    'key-d6': 'sounds/d6.mp3',
+    'key-ds6': 'sounds/ds6.mp3',
+    'key-e6': 'sounds/e6.mp3',
+    'key-f6': 'sounds/f6.mp3',
+    'key-fs6': 'sounds/fs6.mp3',
+    'key-g6': 'sounds/g6.mp3',
+    'key-gs6': 'sounds/gs6.mp3',
+    'key-a6': 'sounds/a6.mp3',
+    'key-as6': 'sounds/as6.mp3',
+    'key-h6': 'sounds/h6.mp3',
+    'key-c7': 'sounds/c7.mp3',
+    'key-cs7': 'sounds/cs7.mp3',
+    'key-d7': 'sounds/d7.mp3',
+    'key-ds7': 'sounds/ds7.mp3',
+    'key-e7': 'sounds/e7.mp3',
+    'key-f7': 'sounds/f7.mp3',
+    'key-fs7': 'sounds/fs7.mp3',
+    'key-g7': 'sounds/g7.mp3',
+    'key-gs7': 'sounds/gs7.mp3',
+    'key-a7': 'sounds/a7.mp3',
+    'key-as7': 'sounds/as7.mp3',
+    'key-h7': 'sounds/h7.mp3',
+    'key-c8': 'sounds/c8.mp3'
+    // Weitere Zuordnungen für andere Tasten
+};
+const noteDurations = {
+    whole: 4000,
+    half: 2000,
+    quarter: 1000,
+    eighth: 500,
+    sixteenth: 250,
+    thirtysecond: 125
+};
+
+const noteImages = {
+    whole: 'note1.png',
+    half: 'note2.png',
+    quarter: 'note3.png',
+    eighth: 'note4.png',
+    sixteenth: 'note5.png',
+    thirtysecond: 'note6.png'
+};
+
+// Funktion zur Berechnung der vertikalen Position basierend auf der Oktave
+function calculateNotePosition(octave) {
+    const maxTop = 150; // Höchste Position für die höchste Oktave
+    const minTop = 630; // Niedrigste Position für die tiefste Oktave
+    const topPosition = minTop - (octave * (minTop - maxTop) / 88);
+    return topPosition;
+}
+
+document.querySelectorAll('.white-key,.black-key').forEach(key => {
+    let startTime, endTime;
+
+    // Gemeinsame Funktion für touchstart/mousedown
+    function handleKeyDown() {
+        clearTimeout(graceTimeout);
+        activeKeys.add(key.id);
+        updateOverlayColor();
+
+        startTime = new Date().getTime();
+        
+        const audio = new Audio(sounds[key.id]);
+        audio.play().catch(error => {
+            const errorMessageDiv = document.getElementById('error-message');
+            errorMessageDiv.innerText = "Fehler beim Abspielen des Tons: " + error.message;
+            errorMessageDiv.style.display = 'block';
+        });
+    }
+
+    // Gemeinsame Funktion für touchend/mouseup
+    function handleKeyUp() {
+        endTime = new Date().getTime();
+        handleNoteDisplay(key, endTime - startTime);
+        
+        graceTimeout = setTimeout(() => {
+            activeKeys.delete(key.id);
+            if (activeKeys.size === 0) {
+                overlay.style.display = 'none';
+            } else {
+                updateOverlayColor();
+            }
+        }, gracePeriod);
+    }
+
+    // Event Listener für Touch-Geräte
+    key.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleKeyDown();
+    });
+
+    key.addEventListener('touchend', (e) => {
+        handleKeyUp();
+    });
+
+    // Event Listener für Maus (Computer)
+    key.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        handleKeyDown();
+    });
+
+    key.addEventListener('mouseup', (e) => {
+        handleKeyUp();
+    });
+});
+
+// Funktion zur Aktualisierung der Overlay-Farbe
+function updateOverlayColor() {
+    const colors = Array.from(activeKeys).map(keyId => getComputedStyle(document.getElementById(keyId)).backgroundColor);
+    overlay.style.backgroundColor = blendColors(colors);
+    overlay.style.opacity = overlayOpacity;
+    overlay.style.display = 'block';
+}
+
+// Funktion zum Mischen von Farben
+function blendColors(colors) {
+    const totalColors = colors.length;
+    const rgbSum = colors.reduce((acc, c) => {
+        const rgb = c.match(/\d+/g).map(Number);
+        return acc.map((val, index) => val + rgb[index]);
+    }, [0, 0, 0]);
+
+    const r = Math.round(rgbSum[0] / totalColors);
+    const g = Math.round(rgbSum[1] / totalColors);
+    const b = Math.round(rgbSum[2] / totalColors);
+
+    return `rgba(${r}, ${g}, ${b}, ${overlayOpacity})`;
+}
+
+// Funktion zur Handhabung der Notenanzeige
+function handleNoteDisplay(key, duration) {
+    let noteType;
+
+    if (duration >= noteDurations.whole) {
+        noteType = 'whole';
+    } else if (duration >= noteDurations.half) {
+        noteType = 'half';
+    } else if (duration >= noteDurations.quarter) {
+        noteType = 'quarter';
+    } else if (duration >= noteDurations.eighth) {
+        noteType = 'eighth';
+    } else if (duration >= noteDurations.sixteenth) {
+        noteType = 'sixteenth';
+    } else {
+        noteType = 'thirtysecond';
+    }
+
+    const noteImage = `images2/${noteImages[noteType]}`;
+    const octave = key.getAttribute('data2-note') || 0;  // Sicherstellen, dass 'data-note' vorhanden ist
+    const topPosition = calculateNotePosition(octave);
+
+    let img = document.createElement('img');
+    img.src = noteImage;
+    img.className = `note-img`;
+    img.style.top = `${topPosition}px`;
+    noteDisplay.appendChild(img);
+
+    setTimeout(() => {
+        img.remove();
+    }, 8000); // 8 Sekunden Animation
+}
+</script>
+</body>
+</html>

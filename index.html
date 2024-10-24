@@ -69,13 +69,14 @@
             animation: moveFromRight 8s linear forwards; /* Fließende Bewegung über 8 Sekunden */
 		z-index:12;
         }
-        @keyframes moveFromRight {
-            0% {
-                transform: translateX(5vw); /* Start außerhalb des rechten Bildschirmrands */
-            }
-            100% {
-                transform: translateX(-100vw); /* Bewegt sich über den gesamten Bildschirm bis zum linken Rand */
-            }
+@keyframes moveFromRight {
+    0% {
+        right: 0; /* Starte direkt am sichtbaren rechten Rand */
+    }
+    100% {
+        right: 100vw; /* Bewege dich bis zum linken Rand des sichtbaren Bildschirms */
+        transform: translateX(-100vw);
+    }
         }
 
 /* Die Farben und Positionen der Tasten bleiben unverändert */
